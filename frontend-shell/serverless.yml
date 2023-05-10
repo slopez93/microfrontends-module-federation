@@ -1,0 +1,32 @@
+service: frontend-shell
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: eu-west-1
+  stage: ${opt:stage}
+
+plugins:
+  - serverless-s3-sync
+
+custom:
+  constants: ${file(./env.yml):CONSTANTS}
+  environment: ${file(./env.yml):${opt:stage}}
+  s3Sync:
+    - bucketName: ${self:custom.environment.BUCKET_NAME}
+      localDir: dist/
+
+package:
+  exclude:
+    - .git/**
+    - old/**
+    - src/**
+    - test/**
+    - e2e/**
+    - nodemon.json
+    - README.md
+
+resources:
+  - ${file(./infrastructure/s3.yml)}
+  - ${file(./infrastructure/cloudfront-distributions.yml)}
+  

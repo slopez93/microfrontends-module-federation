@@ -1,0 +1,31 @@
+Resources:
+  FrontendShellCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: Frontend Shell distribution on stage ${self:provider.stage}
+        CustomErrorResponses:
+        - ErrorCode: 404
+          ResponsePagePath: /index.html
+          ResponseCode: 200
+          ErrorCachingMinTTL: 30
+        DefaultCacheBehavior:
+          AllowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+          CachedMethods: ["GET", "HEAD", "OPTIONS"]
+          Compress: true
+          MinTTL: 86400  # 1 day
+          MaxTTL: 31536000  # 1 year
+          ForwardedValues: 
+            QueryString: true
+          TargetOriginId: !Ref FrontendShellBucket
+          ViewerProtocolPolicy: "redirect-to-https"
+        DefaultRootObject: index.html
+        Enabled: true
+        Origins:
+          - 
+            DomainName: !GetAtt FrontendShellBucket.DomainName
+            Id: !Ref FrontendShellBucket
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only

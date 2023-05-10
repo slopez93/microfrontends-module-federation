@@ -1,0 +1,35 @@
+Resources:
+  FrontendShellBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:custom.environment.BUCKET_NAME}
+      WebsiteConfiguration:
+        ErrorDocument: index.html
+        IndexDocument: index.html
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  FrontendShellBucketRootConfigS3AccessPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Sid: S3OriginAccessIdentity
+            Effect: Allow
+            Principal: '*'
+            Action:
+              - s3:GetObject
+            Resource:
+              Fn::Join:
+                - ''
+                - 
+                  - Fn::GetAtt: [FrontendShellBucket, Arn]
+                  - '/*'
+      Bucket:
+        Ref: FrontendShellBucket
